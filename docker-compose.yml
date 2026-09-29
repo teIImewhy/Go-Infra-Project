@@ -34,7 +34,7 @@ services:
       - ./MyTodoApp/schema:/migrations
     command:
       - '-path=/migrations'
-      - '-database=postgres://postgres:qwerty@postgres:5432/postgres?sslmode=disable'
+      - '-database=postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable'
       - 'up'
     depends_on:
       postgres:
