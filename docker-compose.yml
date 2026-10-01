@@ -37,7 +37,6 @@ services:
     container_name: mytodo-migrations
     volumes:
       - ./MyTodoApp/schema:/migrations
-    restart: unless-stopped
     command:
       - '-path=/migrations'
       - '-database=postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable'
@@ -49,6 +48,7 @@ services:
   postgres:
     image: postgres:17
     container_name: mytodo-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
