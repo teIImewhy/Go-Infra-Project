@@ -16,9 +16,9 @@ services:
 
   app:
     build:
-      context: ./MyTodoApp
+      context: ./go-app
       dockerfile: Dockerfile
-    container_name: mytodo-app
+    container_name: go-app
     restart: unless-stopped
     environment:
       PORT: ${PORT}
@@ -34,9 +34,9 @@ services:
 
   migrations:
     image: migrate/migrate:v4.17.0
-    container_name: mytodo-migrations
+    container_name: migrations
     volumes:
-      - ./MyTodoApp/schema:/migrations
+      - ./go-app/schema:/migrations
     command:
       - '-path=/migrations'
       - '-database=postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable'
@@ -47,7 +47,7 @@ services:
 
   postgres:
     image: postgres:17
-    container_name: mytodo-postgres
+    container_name: postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
