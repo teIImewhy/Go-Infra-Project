@@ -27,4 +27,5 @@ jobs:
         run: test -z "$(gofmt -l .)"
 
       - name: Build
+        working-directory: go-app
         run: go build ./...
