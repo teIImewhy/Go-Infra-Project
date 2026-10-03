@@ -30,7 +30,8 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.13
-          args: --issues-exit-code=0
+          working-directory: go-app
+          args: --issues-exit-code=0 go-app/...
 
       - name: Build
         working-directory: go-app
