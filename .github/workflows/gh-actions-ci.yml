@@ -31,7 +31,7 @@ jobs:
         with:
           version: v2.13
           working-directory: go-app
-          args: --issues-exit-code=0 go-app/...
+          args: --issues-exit-code=0 ./...
 
       - name: Build
         working-directory: go-app
