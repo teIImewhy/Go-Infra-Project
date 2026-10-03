@@ -54,7 +54,7 @@ jobs:
         with:
           context: ./go-app
           file: ./go-app/Dockerfile
-          tags: ghcr.io/${{ github.repository_owner }}/go-app:${{ github.sha }}
+          tags: ghcr.io/teiimewhy/go-app:${{ github.sha }}
           load: true
           push: false
           cache-from: type=gha
@@ -64,11 +64,11 @@ jobs:
       - name: Trivy scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/go-app:${{ github.sha }}
+          image-ref: ghcr.io/teiimewhy/go-app:${{ github.sha }}
           format: table
           severity: HIGH,CRITICAL
           exit-code: 0
 
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: docker push ghcr.io/${{ github.repository_owner }}/go-app:${{ github.sha }}
+        run: docker push ghcr.io/teiimewhy/go-app:${{ github.sha }}
