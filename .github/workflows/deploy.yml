@@ -1,0 +1,35 @@
+name: CD
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: vps_production
+
+    steps:
+      - name: Test VPS connection
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          fingerprint: ${{ secrets.VPS_FINGERPRINT }}
+          script: |
+            echo "SSH connection successful"
+            echo "Host: $(hostname)"
+            echo "User: $(whoami)"
+            echo "Docker: $(docker --version)"
+            echo "Compose: $(docker compose version)"
+            echo "Git: $(git --version)"
+            echo "Working directory: $(pwd)"
