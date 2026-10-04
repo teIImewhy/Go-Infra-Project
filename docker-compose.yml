@@ -15,9 +15,7 @@ services:
       - prometheus
 
   app:
-    build:
-      context: ./go-app
-      dockerfile: Dockerfile
+    image: ghcr.io/teiimewhy/go-app:${IMAGE_TAG}
     container_name: go-app
     restart: unless-stopped
     environment:
