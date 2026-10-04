@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          fingerprint: ${{ secrets.VPS_FINGERPRINT }}
+          # fingerprint: ${{ secrets.VPS_FINGERPRINT }}
           script: |
             echo "SSH connection successful"
             echo "Host: $(hostname)"
