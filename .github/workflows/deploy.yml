@@ -2,6 +2,11 @@ name: CD
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Git commit SHA / Docker image tag to deploy"
+        required: true
+        type: string
 
 concurrency:
   group: deploy-${{ github.ref_name }}
@@ -18,18 +23,44 @@ jobs:
       name: vps_production
 
     steps:
-      - name: Test VPS connection
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          # fingerprint: ${{ secrets.VPS_FINGERPRINT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo "SSH connection successful"
-            echo "Host: $(hostname)"
-            echo "User: $(whoami)"
-            echo "Docker: $(docker --version)"
-            echo "Compose: $(docker compose version)"
-            echo "Git: $(git --version)"
-            echo "Working directory: $(pwd)"
+            set -e
+
+            REPO_DIR="$HOME/MyTodoApp"
+            REPO_URL="git@github.com:fshmidt/MyTodoApp.git"
+            IMAGE_TAG="${{ inputs.image_tag }}"
+
+            echo "Deploying version: $IMAGE_TAG"
+
+            if [ ! -d "$REPO_DIR/.git" ]; then
+            echo "Repository not found. Cloning..."
+            git clone "$REPO_URL" "$REPO_DIR"
+            fi
+
+            if [ ! -f "$REPO_DIR/.env" ]; then
+            echo "ERROR: $REPO_DIR/.env not found"
+            exit 1
+            fi
+
+            cd "$REPO_DIR"
+
+            echo "Fetching repository..."
+            git fetch origin
+
+            echo "Checking out version..."
+            git checkout "$IMAGE_TAG"
+
+            echo "Pulling Docker image..."
+            IMAGE_TAG="$IMAGE_TAG" docker compose pull
+
+            echo "Starting services..."
+            IMAGE_TAG="$IMAGE_TAG" docker compose up -d
+
+            echo "Deployment status:"
+            docker compose ps
