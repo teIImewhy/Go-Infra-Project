@@ -28,39 +28,42 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key: ${{ secrets.VPS_SSH__PRIVATE_KEY }}
           script: |
             set -e
 
-            REPO_DIR="$HOME/MyTodoApp"
-            REPO_URL="git@github.com:fshmidt/MyTodoApp.git"
+            REPO_DIR="$HOME/Go-Infra-Project"
+            ENV_SOURCE="$HOME/.Go-Infra-Project/.env"
+            REPO_URL="git@github.com:teiimewhy/Go-Infra-Project.git"
             IMAGE_TAG="${{ inputs.image_tag }}"
 
             echo "Deploying version: $IMAGE_TAG"
 
-            if [ ! -d "$REPO_DIR/.git" ]; then
-            echo "Repository not found. Cloning..."
-            git clone "$REPO_URL" "$REPO_DIR"
-            fi
-
-            if [ ! -f "$REPO_DIR/.env" ]; then
-            echo "ERROR: $REPO_DIR/.env not found"
+            if [ ! -f "$ENV_SOURCE" ]; then
+            echo "ERROR: $ENV_SOURCE not found"
             exit 1
             fi
 
-            cd "$REPO_DIR"
+            mkdir -p "$REPO_DIR"
 
-            echo "Fetching repository..."
+            if [ ! -d "$REPO_DIR/.git" ]; then
+            cd "$REPO_DIR"
+            git init
+            git remote add origin "$REPO_URL"
+            fi
+
+            cd "$REPO_DIR"
             git fetch origin
 
-            echo "Checking out version..."
-            git checkout "$IMAGE_TAG"
+            git checkout --detach "$IMAGE_TAG"
 
-            echo "Pulling Docker image..."
+            if [ ! -f "$REPO_DIR/.env" ]; then
+            echo "Copying .env..."
+            cp "$ENV_SOURCE" "$REPO_DIR/.env"
+            chmod 600 "$REPO_DIR/.env"
+            fi
+
             IMAGE_TAG="$IMAGE_TAG" docker compose pull
-
-            echo "Starting services..."
             IMAGE_TAG="$IMAGE_TAG" docker compose up -d
 
-            echo "Deployment status:"
             docker compose ps
